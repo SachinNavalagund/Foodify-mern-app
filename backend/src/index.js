@@ -1,7 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import { connectDataBase } from "./utils/connectDataBase.js";
+import myUserRoute from "../src/routes/myUserRoutes.js";
 
 const app = express();
 dotenv.config();
@@ -14,6 +16,8 @@ app.get("/", async (req, res) => {
 });
 
 const PORT = 3000;
+
+app.use("/api/my/user", myUserRoute);
 
 app.listen(PORT, () => {
   connectDataBase();
