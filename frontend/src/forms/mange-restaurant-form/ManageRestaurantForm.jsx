@@ -1,6 +1,6 @@
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import DetailsSection from "./DetailsSection";
@@ -8,41 +8,46 @@ import { Separator } from "@/components/ui/separator";
 import CusinesSection from "./CusinesSection";
 import MenuSection from "./MenuSection";
 import ImageSection from "./ImageSection";
-import LoadingButton from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-const formSchema = z.object({
-  restaurantName: z.string({
-    required_error: "restaurant name is required",
-  }),
-  city: z.string({
-    required_error: "city is required",
-  }),
-  country: z.string({
-    required_error: "country is required",
-  }),
-  deliveryPrice: z.coerce.number({
-    required_error: "delivery price is reqiored",
-    invalid_type_error: "must be a valid number",
-  }),
-  estimatedDeliveryTime: z.coerce.number({
-    required_error: "estimated delivery time is reqiored",
-    invalid_type_error: "must be a valid number",
-  }),
-  cuisines: z.array(z.string()).nonempty({
-    message: "please select at least one item",
-  }),
-  menuItems: z.array(
-    z.object({
-      name: z.string().min(1, "name is required"),
-      price: z.coerce.number().min(1, "price is required"),
-    })
-  ),
-  imageFile: z.instanceof(File, { message: "image is required" }),
-});
+const formSchema = z
+  .object({
+    restaurantName: z.string({
+      required_error: "restaurant name is required",
+    }),
+    city: z.string({
+      required_error: "city is required",
+    }),
+    country: z.string({
+      required_error: "country is required",
+    }),
+    deliveryPrice: z.coerce.number({
+      required_error: "delivery price is reqiored",
+      invalid_type_error: "must be a valid number",
+    }),
+    estimatedDeliveryTime: z.coerce.number({
+      required_error: "estimated delivery time is reqiored",
+      invalid_type_error: "must be a valid number",
+    }),
+    cuisines: z.array(z.string()).nonempty({
+      message: "please select at least one item",
+    }),
+    menuItems: z.array(
+      z.object({
+        name: z.string().min(1, "name is required"),
+        price: z.coerce.number().min(1, "price is required"),
+      })
+    ),
+    imageUrl: z.string().optional(),
+    imageFile: z.instanceof(File, { message: "image is required" }).optional(),
+  })
+  .refine((data) => data.imageUrl || data.imageFile, {
+    message: "Either image URL or image File must be provided",
+    path: ["imageFile"],
+  });
 
-const ManageRestaurantForm = ({ onSave, isPending }) => {
+const ManageRestaurantForm = ({ onSave, isPending, myRestaurant }) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,6 +55,29 @@ const ManageRestaurantForm = ({ onSave, isPending }) => {
       menuItem: [{ name: "", price: 0 }],
     },
   });
+
+  useEffect(() => {
+    if (!myRestaurant) {
+      return;
+    }
+
+    const deliveryPriceFormatted = parseInt(
+      (myRestaurant.deliveryPrice / 100).toFixed(2)
+    );
+
+    const menuItemsFormatted = myRestaurant.menuItems.map((item) => ({
+      ...item,
+      price: parseInt((item.price / 100).toFixed(2)),
+    }));
+
+    const updatedRestaurant = {
+      ...myRestaurant,
+      deliveryPrice: deliveryPriceFormatted,
+      menuItems: menuItemsFormatted,
+    };
+
+    form.reset(updatedRestaurant);
+  }, [form, myRestaurant]);
 
   const onSubmit = (formDataJson) => {
     const formData = new FormData();
@@ -75,7 +103,9 @@ const ManageRestaurantForm = ({ onSave, isPending }) => {
         (menuItem.price * 100).toString()
       );
     });
-    formData.append(`imageFile`, formDataJson.imageFile);
+    if (formDataJson.imageFile) {
+      formData.append(`imageFile`, formDataJson.imageFile);
+    }
 
     onSave(formData);
   };
