@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { connectDataBase } from "./utils/connectDataBase.js";
 import myUserRoute from "../src/routes/myUserRoutes.js";
 import myRestaurantRoute from "../src/routes/myRestaurantRoute.js";
+import restaurantRoute from "../src/routes/restaurantRoute.js";
 const app = express();
 dotenv.config();
 
@@ -26,6 +27,7 @@ const PORT = 3000;
 
 app.use("/api/my/user", myUserRoute);
 app.use("/api/my/restaurant", myRestaurantRoute);
+app.use("/api/restaurant", restaurantRoute);
 
 app.listen(PORT, () => {
   connectDataBase();
