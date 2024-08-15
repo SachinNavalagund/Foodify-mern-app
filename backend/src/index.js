@@ -11,8 +11,8 @@ dotenv.config();
 app.use(express.json());
 app.use(cors());
 
-app.get("/", async (req, res) => {
-  res.status(200).json({ message: "Hello app is running successfully" });
+app.get("/health", async (req, res) => {
+  res.send({ message: "Health ok 🎉" });
 });
 
 const PORT = 3000;

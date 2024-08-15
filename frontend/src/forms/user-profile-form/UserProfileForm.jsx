@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,8 +23,16 @@ const formSchema = z.object({
   country: z.string().min(1, { message: "Country is required" }),
 });
 
-const UserProfileForm = ({ onSave, isPending }) => {
-  const form = useForm({ resolver: zodResolver(formSchema), mode: "onBlur" });
+const UserProfileForm = ({ currentUser, onSave, isPending }) => {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur",
+    defaultValues: currentUser,
+  });
+
+  useEffect(() => {
+    form.reset(currentUser);
+  }, [currentUser, form]);
 
   return (
     <Form {...form}>

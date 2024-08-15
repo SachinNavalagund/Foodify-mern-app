@@ -40,3 +40,17 @@ export const updateCurrentUser = async (req, res) => {
     res.status(500).json({ message: "Error updating user" });
   }
 };
+
+export const getCurrentLoggedInUser = async (req, res) => {
+  try {
+    const currentUser = await User.findOne({ _id: req.userId });
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(currentUser);
+  } catch (error) {
+    console.log("Somthing wrong in getCurrentLoggedInUser controller", error);
+    res.status(500).json({ message: "Error updating user" });
+  }
+};
