@@ -1,15 +1,22 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { v2 as cloudinary } from "cloudinary";
 
 import { connectDataBase } from "./utils/connectDataBase.js";
 import myUserRoute from "../src/routes/myUserRoutes.js";
-
+import myRestaurantRoute from "../src/routes/myRestaurantRoute.js";
 const app = express();
 dotenv.config();
 
 app.use(express.json());
 app.use(cors());
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 app.get("/health", async (req, res) => {
   res.send({ message: "Health ok 🎉" });
@@ -18,6 +25,7 @@ app.get("/health", async (req, res) => {
 const PORT = 3000;
 
 app.use("/api/my/user", myUserRoute);
+app.use("/api/my/restaurant", myRestaurantRoute);
 
 app.listen(PORT, () => {
   connectDataBase();
