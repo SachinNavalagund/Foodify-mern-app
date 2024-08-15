@@ -16,7 +16,6 @@ const upload = multer({
 
 router.post(
   "/create-restaurent",
-  validateMyRestaurantRequest,
   jwtCheck,
   jwtParse,
   upload.single("imageFile"),
