@@ -12,7 +12,6 @@ const SearchResultInfo = ({ total, city }) => {
           Change Location
         </Link>
       </span>
-      Insert sort dropdown
     </div>
   );
 };

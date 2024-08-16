@@ -12,7 +12,6 @@ export const searchRestaurants = async (req, res) => {
 
     query["city"] = new RegExp(city, "i");
     const cityCheck = await Restaurant.countDocuments(query);
-    console.log(cityCheck);
 
     if (cityCheck === 0) {
       return res.status(404).json({
@@ -45,24 +44,11 @@ export const searchRestaurants = async (req, res) => {
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
 
-    //TODO : sort()
-
-    // let sortObject = {};
-    // if (sortOption) {
-    //   // Assuming sortOption is in the format "field" or "field:order" (e.g., "name" or "name:desc")
-    //   const [field, order] = sortOption.split(":");
-    //   if (field) {
-    //     sortObject[field] = order === "desc" ? -1 : 1; // Default to ascending if no order specified
-    //   }
-    // }
-    // .sort({ [sortOption]: 1 })
-
     const restaurants = await Restaurant.find(query)
-
+      .sort({ [sortOption]: 1 })
       .skip(skip)
       .limit(pageSize)
       .lean();
-    console.log(restaurants);
 
     const total = await Restaurant.countDocuments(query);
 
