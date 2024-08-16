@@ -92,9 +92,6 @@ export const useUpdateMyRestaurant = () => {
       );
 
       if (!response.ok) {
-        // const errorText = await response.text();
-        // const errorData = JSON.parse(errorText);
-        // toast.error(errorData.message);
         throw new Error("Failed to update restaurant");
       }
 
@@ -109,4 +106,75 @@ export const useUpdateMyRestaurant = () => {
   });
 
   return { updateRestaurant, isPending };
+};
+
+export const useGetMyRestaurantOrders = () => {
+  const { getAccessTokenSilently } = useAuth0();
+  const {
+    data: orders,
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["getOrders"],
+    queryFn: async () => {
+      const accessToken = await getAccessTokenSilently();
+
+      const resposne = await fetch(`${API_BASE_URL}/api/my/restaurant/order`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!resposne.ok) {
+        throw new Error("Failed to fetch orders");
+      }
+
+      return resposne.json();
+    },
+  });
+  if (error) {
+    toast.error(error.toString());
+  }
+
+  return { orders, isPending, error };
+};
+
+export const useUpdateMyRestaurantOrder = () => {
+  const { getAccessTokenSilently } = useAuth0();
+  const {
+    mutateAsync: updateRestaurantOrderStatus,
+    isPending,
+    reset,
+  } = useMutation({
+    mutationFn: async (updateStatusOrderRequest) => {
+      const accessToken = await getAccessTokenSilently();
+      console.log("order id ->", updateStatusOrderRequest.orderId);
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/my/restaurant/order/${updateStatusOrderRequest.orderId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: updateStatusOrderRequest.status }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update order status");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast.success("Order updated 🎉");
+    },
+    onError: () => {
+      toast.error("Unable to update order");
+      reset();
+    },
+  });
+  return { updateRestaurantOrderStatus, isPending };
 };

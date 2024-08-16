@@ -1,8 +1,11 @@
 import {
   useCreateMyRestaurant,
   useGetMyRestaurant,
+  useGetMyRestaurantOrders,
   useUpdateMyRestaurant,
 } from "@/api/MyRestaurantApi";
+import OrderItemCard from "@/components/OrderItemCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManageRestaurantForm from "@/forms/mange-restaurant-form/ManageRestaurantForm";
 import React from "react";
 
@@ -14,13 +17,31 @@ const ManageRestaurantPage = () => {
   const { updateRestaurant, isPending: isUpdatePending } =
     useUpdateMyRestaurant();
 
+  const { orders } = useGetMyRestaurantOrders();
+
   const isEditing = !!myRestaurant;
   return (
-    <ManageRestaurantForm
-      onSave={isEditing ? updateRestaurant : createRestaurant}
-      isPending={isPending || isUpdatePending}
-      myRestaurant={myRestaurant}
-    />
+    <Tabs defaultValue="orders">
+      <TabsList>
+        <TabsTrigger value="orders">Orders</TabsTrigger>
+        <TabsTrigger value="manage-restaurant">Manage Restaurant</TabsTrigger>
+      </TabsList>
+      <TabsContent
+        value="orders"
+        className="space-y-5 bg-gray-50 pl-10 rounded-lg">
+        <h2 className="text-2xl font-bold">{orders?.length} active orders</h2>
+        {orders?.map((order) => (
+          <OrderItemCard order={order} />
+        ))}
+      </TabsContent>
+      <TabsContent value="manage-restaurant">
+        <ManageRestaurantForm
+          onSave={isEditing ? updateRestaurant : createRestaurant}
+          isPending={isPending || isUpdatePending}
+          myRestaurant={myRestaurant}
+        />
+      </TabsContent>
+    </Tabs>
   );
 };
 
