@@ -6,6 +6,18 @@ const STRIPE = new Stripe(process.env.STRIPE_API_KEY);
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
+export const getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.userId })
+      .populate("restaurant")
+      .populate("user");
+    res.json(orders);
+  } catch (error) {
+    console.log("Error in getMyOrder controller", error);
+    return res.status(500).json({ message: "Somthing went wrong" });
+  }
+};
+
 export const stripeWebhookHandler = async (req, res) => {
   let event;
   try {
