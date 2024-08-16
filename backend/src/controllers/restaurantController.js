@@ -1,5 +1,19 @@
 import Restaurant from "../models/restaurantModel.js";
 
+export const getRestaurantById = async (req, res) => {
+  try {
+    const restaurantId = req.params.restaurantId;
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+    res.json(restaurant);
+  } catch (error) {
+    console.log("Error in searchRestaurants controller", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 export const searchRestaurants = async (req, res) => {
   try {
     const city = req.params.city;

@@ -2,6 +2,25 @@ import { useQuery } from "@tanstack/react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+export const useGetRestaurantById = (restaurantId) => {
+  const { data: restaurantById, isPending } = useQuery({
+    queryKey: ["getRestaurantById"],
+    queryFn: async () => {
+      const response = await fetch(
+        `${API_BASE_URL}/api/restaurant/${restaurantId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to get restaurant");
+      }
+      return response.json();
+    },
+    enabled: !!restaurantId,
+  });
+
+  return { restaurantById, isPending };
+};
+
 export const useSearchRestaurants = (searchState, city) => {
   const { data: results, isPending } = useQuery({
     queryKey: ["searchRestaurants", searchState],
